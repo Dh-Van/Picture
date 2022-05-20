@@ -7,13 +7,21 @@ public class Steganography {
 //        Picture copy = testClearLow(beach);
 //        copy.explore();
 
-        Picture beach2 = new Picture("beach.jpg");
-        beach2.explore();
-        Picture copy2 = testSetLow(beach2, Color.PINK);
-        copy2.explore();
+//        Picture beach2 = new Picture("beach.jpg");
+//        beach2.explore();
+//        Picture copy2 = testSetLow(beach2, Color.PINK);
+//        copy2.explore();
 
-        Picture copy3 = revealPicture(copy2);
-        copy3.explore();
+//        Picture copy3 = revealPicture(copy2);
+//        copy3.explore();
+
+        Picture swan = new Picture("swan.jpg");
+        Picture gore = new Picture("gorge.jpg");
+        swan.explore();
+        Picture hiddenSwan = hidePicture(swan, gore);
+        hiddenSwan.explore();
+        Picture revealedSwan = revealPicture(hiddenSwan);
+        revealedSwan.explore();
     }
 
     public static void clearLow(Pixel p) {
@@ -72,5 +80,24 @@ public class Steganography {
             }
         }
         return copy;
+    }
+
+    public static boolean canHide(Picture source, Picture secret){
+        return source.getHeight() == secret.getHeight() && source.getWidth() == secret.getWidth();
+    }
+
+    public static Picture hidePicture(Picture source, Picture secret){
+        if(!canHide(source, secret)) return source;
+
+        Pixel[][] sourceA = source.getPixels2D();
+        Pixel[][] secretA = secret.getPixels2D();
+
+        for(int r = 0; r < sourceA.length; r++){
+            for(int c = 0; c < sourceA[0].length; c++){
+                setLow(sourceA[r][c], secretA[r][c].getColor());
+            }
+        }
+
+        return source;
     }
 }
