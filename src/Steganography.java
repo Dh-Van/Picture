@@ -137,13 +137,14 @@ public class Steganography {
 
     public static Picture hidePicture(Picture source, Picture secret){
         if(!canHide(source, secret)) return source;
+        Picture copy = new Picture(source);
 
-        Pixel[][] sourceA = source.getPixels2D();
+        Pixel[][] copyA = copy.getPixels2D();
         Pixel[][] secretA = secret.getPixels2D();
 
-        for(int r = 0; r < sourceA.length; r++){
-            for(int c = 0; c < sourceA[0].length; c++){
-                setLow(sourceA[r][c], secretA[r][c].getColor());
+        for(int r = 0; r < copyA.length; r++){
+            for(int c = 0; c < copyA[0].length; c++){
+                setLow(copyA[r][c], secretA[r][c].getColor());
             }
         }
 
@@ -152,17 +153,18 @@ public class Steganography {
 
     public static Picture hidePicture(Picture source, Picture secret, int startRow, int startCol){
         if(!canHide(source, secret)) return source;
+        Picture copy = new Picture(source);
 
-        Pixel[][] sourceA = source.getPixels2D();
+        Pixel[][] copyA = copy.getPixels2D();
         Pixel[][] secretA = secret.getPixels2D();
 
         for(int r = startRow, r1 = 0; r1 < secretA.length; r++, r1++){
             for(int c = startCol, c1 = 0; c1 < secretA[0].length; c++, c1++){
-                setLow(sourceA[r][c], secretA[r1][c1].getColor());
+                setLow(copyA[r][c], secretA[r1][c1].getColor());
             }
         }
 
-        return source;
+        return copy;
     }
 
     public static ArrayList<Point> findDifferences(Picture p1, Picture p2){
@@ -170,12 +172,18 @@ public class Steganography {
         Pixel[][] p1Array = p1.getPixels2D();
         Pixel[][] p2Array = p2.getPixels2D();
 
-        if(p1Array.length != p2Array.length) return pointList;
+        if(p1Array.length != p2Array.length && p1Array[0].length != p2Array[0].length) return pointList;
 
         for(int r = 0; r < p1Array.length; r++){
             for(int c = 0; c < p1Array[0].length; c++){
-                System.out.println(p1Array[r][c].getColor());
-                System.out.println(p2Array[r][c].getColor());
+                int red1 = p1Array[r][c].getRed();
+                int green1 = p1Array[r][c].getGreen();
+                int blue1 = p1Array[r][c].getBlue();
+
+                int red2 = p2Array[r][c].getRed();
+                int green2 = p2Array[r][c].getGreen();
+                int blue2 = p2Array[r][c].getBlue();
+
                 if(!p1Array[r][c].getColor().equals(p2Array[r][c].getColor())){
                     pointList.add(new Point(r, c));
                 }
