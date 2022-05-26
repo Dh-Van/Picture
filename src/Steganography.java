@@ -176,14 +176,6 @@ public class Steganography {
 
         for(int r = 0; r < p1Array.length; r++){
             for(int c = 0; c < p1Array[0].length; c++){
-                int red1 = p1Array[r][c].getRed();
-                int green1 = p1Array[r][c].getGreen();
-                int blue1 = p1Array[r][c].getBlue();
-
-                int red2 = p2Array[r][c].getRed();
-                int green2 = p2Array[r][c].getGreen();
-                int blue2 = p2Array[r][c].getBlue();
-
                 if(!p1Array[r][c].getColor().equals(p2Array[r][c].getColor())){
                     pointList.add(new Point(r, c));
                 }
