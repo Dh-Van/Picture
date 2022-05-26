@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Steganography {
     public static void main(String[] args) {
@@ -15,13 +17,45 @@ public class Steganography {
 //        Picture copy3 = revealPicture(copy2);
 //        copy3.explore();
 
-        Picture swan = new Picture("swan.jpg");
-        Picture gore = new Picture("gorge.jpg");
-        swan.explore();
-        Picture hiddenSwan = hidePicture(swan, gore);
-        hiddenSwan.explore();
-        Picture revealedSwan = revealPicture(hiddenSwan);
-        revealedSwan.explore();
+//        Picture swan = new Picture("swan.jpg");
+//        Picture gore = new Picture("gorge.jpg");
+//
+//        System.out.println(isSame(swan, gore));
+
+//        swan.explore();
+//        Picture hiddenSwan = hidePicture(swan, gore);
+//        hiddenSwan.explore();
+//        Picture revealedSwan = revealPicture(hiddenSwan);
+//        revealedSwan.explore();
+
+        // Activity 3
+//        Picture beach = new Picture("beach.jpg");
+//        Picture robot = new Picture("robot.jpg");
+//        Picture flower1 = new Picture("flower1.jpg");
+//        beach.explore();
+//
+//        Picture hidden1 = hidePicture(beach, robot, 65, 208);
+//        Picture hidden2 = hidePicture(hidden1, flower1, 280, 110);
+//        hidden2.explore();
+//
+//        Picture unhidden = revealPicture(hidden2);
+//        unhidden.explore();
+
+
+        Picture arch = new Picture("arch.jpg");
+        Picture koala = new Picture("koala.jpg");
+        Picture robot1 = new Picture("robot.jpg");
+        ArrayList<Point> pointList = findDifferences(arch, arch);
+        System.out.println("Pointlist after comparing two identical pictures has a size of " + pointList.size());
+        pointList = findDifferences(arch, koala);
+        System.out.println("Pointlist after comparing two different sized pictures has a size of " + pointList.size());
+        Picture arch2 = hidePicture(arch, robot1, 65, 102);
+        pointList = findDifferences(arch, arch2);
+        System.out.println("Pointlist after hiding a picture has a size of " + pointList.size());
+        arch.show();
+        arch2.show();
+
+
     }
 
     public static void clearLow(Pixel p) {
@@ -83,7 +117,22 @@ public class Steganography {
     }
 
     public static boolean canHide(Picture source, Picture secret){
-        return source.getHeight() == secret.getHeight() && source.getWidth() == secret.getWidth();
+        return source.getHeight() >= secret.getHeight() && source.getWidth() >= secret.getWidth();
+    }
+
+    public static boolean isSame(Picture p1, Picture p2){
+        Pixel[][] p1Array = p1.getPixels2D();
+        Pixel[][] p2Array = p2.getPixels2D();
+
+        if(p1Array.length != p2Array.length && p1Array[0].length != p2Array[0].length) return false;
+
+        for(int r = 0; r < p1Array.length; r++){
+            for(int c = 0; c < p1Array[0].length; c++){
+                if(!p1Array[r][c].getColor().equals(p2Array[r][c].getColor())) return false;
+            }
+        }
+
+        return true;
     }
 
     public static Picture hidePicture(Picture source, Picture secret){
@@ -99,5 +148,39 @@ public class Steganography {
         }
 
         return source;
+    }
+
+    public static Picture hidePicture(Picture source, Picture secret, int startRow, int startCol){
+        if(!canHide(source, secret)) return source;
+
+        Pixel[][] sourceA = source.getPixels2D();
+        Pixel[][] secretA = secret.getPixels2D();
+
+        for(int r = startRow, r1 = 0; r1 < secretA.length; r++, r1++){
+            for(int c = startCol, c1 = 0; c1 < secretA[0].length; c++, c1++){
+                setLow(sourceA[r][c], secretA[r1][c1].getColor());
+            }
+        }
+
+        return source;
+    }
+
+    public static ArrayList<Point> findDifferences(Picture p1, Picture p2){
+        ArrayList<Point> pointList = new ArrayList<>();
+        Pixel[][] p1Array = p1.getPixels2D();
+        Pixel[][] p2Array = p2.getPixels2D();
+
+        if(p1Array.length != p2Array.length) return pointList;
+
+        for(int r = 0; r < p1Array.length; r++){
+            for(int c = 0; c < p1Array[0].length; c++){
+                System.out.println(p1Array[r][c].getColor());
+                System.out.println(p2Array[r][c].getColor());
+                if(!p1Array[r][c].getColor().equals(p2Array[r][c].getColor())){
+                    pointList.add(new Point(r, c));
+                }
+            }
+        }
+        return pointList;
     }
 }
