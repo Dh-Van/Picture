@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class Steganography {
     public static void main(String[] args) {
@@ -223,6 +224,38 @@ public class Steganography {
             ret.getPixel(maxY, col).setColor(Color.BLACK);
         }
         return ret;
+
+    }
+
+    public static ArrayList<Integer> encodeString(String s){
+        s = s.toUpperCase();
+        String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        ArrayList<Integer> result = new ArrayList<>();
+
+        for(int i = 0; i < s.length(); i++)
+            result.add(alpha.indexOf(s.charAt(i)) + 1);
+
+        result.add(0);
+        return result;
+    }
+
+    public static String decodeString(ArrayList<Integer> codes){
+        String result = "";
+        String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        codes.remove(codes.size() - 1);
+
+        for(int code : codes)
+            result += alpha.charAt(code - 1);
+
+        return result;
+    }
+
+    private static int[] getBitPairs(int num){
+        int[] ret = new int[3];
+        ret[0] = num / 4;
+        ret[1] = num % 100 / 4;
+        ret[2] = num % 10000 / 4;
 
     }
 }
