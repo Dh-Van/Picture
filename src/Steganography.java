@@ -55,20 +55,27 @@ public class Steganography {
 //        arch.show();
 //        arch2.show();
 
-        Picture hall = new Picture("femaleLionAndHall.jpg");
-        Picture robot2 = new Picture("robot.jpg");
-        Picture flower1 = new Picture("flower1.jpg");
+//        Picture hall = new Picture("femaleLionAndHall.jpg");
+//        Picture robot2 = new Picture("robot.jpg");
+//        Picture flower1 = new Picture("flower1.jpg");
+//
+//        Picture hall2 = hidePicture(hall, robot2, 50, 300);
+//        Picture hall3 = hidePicture(hall2, flower1, 115, 275);
+//        hall3.explore();
+//
+//        if(!isSame(hall, hall3)){
+//            Picture hall4 = showDifferentArea(hall, findDifferences(hall, hall3));
+//            hall4.show();
+//            Picture unhiddenHall3 = revealPicture(hall3);
+//            unhiddenHall3.show();
+//        }
 
-        Picture hall2 = hidePicture(hall, robot2, 50, 300);
-        Picture hall3 = hidePicture(hall2, flower1, 115, 275);
-        hall3.explore();
+        Picture swan = new Picture("swan.jpg");
+        swan.explore();
+        Picture hiddenSwan = hideText(swan, "HELLO WORLD");
+        hiddenSwan.explore();
+        System.out.println(revealText(hiddenSwan));
 
-        if(!isSame(hall, hall3)){
-            Picture hall4 = showDifferentArea(hall, findDifferences(hall, hall3));
-            hall4.show();
-            Picture unhiddenHall3 = revealPicture(hall3);
-            unhiddenHall3.show();
-        }
 
     }
 
@@ -98,6 +105,27 @@ public class Steganography {
         p.setRed(red + (c.getRed()/64));
         p.setGreen(green + (c.getGreen()/64));
         p.setBlue(blue + (c.getBlue()/64));
+    }
+
+    public static void setLow(Pixel p, int num){
+        int red = p.getRed() / 4 * 4;
+        int green = p.getGreen() / 4 * 4;
+        int blue = p.getBlue() / 4 * 4;
+
+        int[] rgb = getBitPairs(num);
+
+        p.setRed(red + rgb[0]);
+        p.setGreen(green + rgb[1]);
+        p.setBlue(blue + rgb[2]);
+    }
+
+    public static int getSumLow(Pixel p){
+        int ret = 0;
+        ret += p.getRed() % 4;
+        ret += p.getGreen() % 4 * 4;
+        ret += p.getBlue() % 4 * 16;
+
+        return ret;
     }
 
     public static Picture testSetLow(Picture p, Color c){
@@ -229,7 +257,7 @@ public class Steganography {
 
     public static ArrayList<Integer> encodeString(String s){
         s = s.toUpperCase();
-        String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
         ArrayList<Integer> result = new ArrayList<>();
 
         for(int i = 0; i < s.length(); i++)
@@ -241,21 +269,57 @@ public class Steganography {
 
     public static String decodeString(ArrayList<Integer> codes){
         String result = "";
-        String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
 
-        codes.remove(codes.size() - 1);
-
-        for(int code : codes)
+        for(int code : codes) {
+            if(code == 0) break;
             result += alpha.charAt(code - 1);
-
+        }
         return result;
     }
 
     private static int[] getBitPairs(int num){
         int[] ret = new int[3];
-        ret[0] = num / 4;
-        ret[1] = num % 100 / 4;
-        ret[2] = num % 10000 / 4;
+        ret[0] = num % 4;
+        ret[1] = num / 4 % 4;
+        ret[2] = num / 16;
 
+        return ret;
+    }
+
+    public static Picture hideText(Picture source, String s){
+        Picture p = new Picture(source);
+        ArrayList<Integer> encodedList = encodeString(s);
+        Pixel[][] pixels = p.getPixels2D();
+
+        for(int r = 0, counter = 0; r < pixels.length; r++){
+            for(int c = 0; c < pixels[0].length; c++){
+                int num = encodedList.get(counter);
+                Pixel pixel = pixels[r][c];
+                setLow(pixel, num);
+                if(num == 0) break;
+                counter++;
+            }
+        }
+
+        return p;
+    }
+
+    public static String revealText(Picture source){
+        Picture p = new Picture(source);
+        ArrayList<Integer> decodedList = new ArrayList<>();
+        Pixel[][] pixels = p.getPixels2D();
+
+        for(int r = 0; r < pixels.length; r++){
+            for(int c = 0; c < pixels[0].length; c++){
+                Pixel pixel = pixels[r][c];
+                int sumLow = getSumLow(pixel);
+                decodedList.add(sumLow);
+                if(sumLow == 0) break;
+            }
+        }
+
+//        System.out.println(Arrays.toString(decodedList.toArray()));
+        return decodeString(decodedList);
     }
 }
